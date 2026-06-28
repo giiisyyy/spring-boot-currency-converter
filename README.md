@@ -46,7 +46,8 @@ mvn spring-boot:run
 5. Access the user portal from your browser:
 Open http://localhost:8080 to explore the system.
 
-🧪 Automated Test Suite
+## 🧪 Automated Test Suite
+
 To execute the unit, integration, and mocked controller verification tests safely without hitting external endpoints, trigger the Surefire Maven lifecycle phase:
 
 ```bash
