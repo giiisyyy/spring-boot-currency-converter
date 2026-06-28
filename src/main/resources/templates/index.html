@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ca">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Currency Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f4f7f6;
+        }
+        .card {
+            max-width: 500px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .lang-bar {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+        .lang-bar label {
+            font-size: 13px;
+            color: #7f8c8d;
+            margin-right: 5px;
+        }
+        .lang-bar select {
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        input[type="number"], select {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+        input[type="submit"] {
+            padding: 12px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 15px;
+        }
+        input[type="submit"]:hover {
+            background-color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+
+    <div class="lang-bar">
+        <label><strong>Language / Idioma:</strong></label>
+        <select id="langSelector">
+            <option value="ca">Català</option>
+            <option value="es">Español</option>
+            <option value="en">English</option>
+        </select>
+    </div>
+
+    <h1 id="mainTitle">💱 Conversor de Divises Mundial</h1>
+
+    <form action="/convert" method="GET">
+        <input type="hidden" id="langInput" name="lang" value="ca"/>
+
+        <label id="lblAmount"><strong>Quantitat a convertir:</strong></label>
+        <input type="number" step="0.01" name="amount" value="1.00" required/>
+
+        <label id="lblFrom"><strong>Moneda d'origen:</strong></label>
+        <select id="fromCurrency" name="from">
+            <option th:each="currency : ${currencies}"
+                    th:value="${currency}"
+                    th:text="${currency}"/>
+        </select>
+
+        <label id="lblTo"><strong>Moneda de destí:</strong></label>
+        <select id="toCurrency" name="to">
+            <option th:each="currency : ${currencies}"
+                    th:value="${currency}"
+                    th:text="${currency}"/>
+        </select>
+
+        <input id="btnSubmit" type="submit" value="Convertir Ara"/>
+    </form>
+</div>
+
+<script>
+    const translations = {
+        ca: {
+            title: "💱 Conversor de Divises Mundial",
+            amount: "Quantitat a convertir:",
+            from: "Moneda d'origen:",
+            to: "Moneda de destí:",
+            button: "Convertir Ara"
+        },
+        es: {
+            title: "💱 Conversor de Divisas Mundial",
+            amount: "Cantidad a convertir:",
+            from: "Moneda de origen:",
+            to: "Moneda de destino:",
+            button: "Convertir Ahora"
+        },
+        en: {
+            title: "💱 Global Currency Converter",
+            amount: "Amount to convert:",
+            from: "From Currency:",
+            to: "To Currency:",
+            button: "Convert Now"
+        }
+    };
+
+    function updateLanguage() {
+        const lang = document.getElementById('langSelector').value;
+
+        document.getElementById('langInput').value = lang;
+        document.getElementById('mainTitle').innerText = translations[lang].title;
+        document.getElementById('lblAmount').innerHTML = '<strong>' + translations[lang].amount + '</strong>';
+        document.getElementById('lblFrom').innerHTML = '<strong>' + translations[lang].from + '</strong>';
+        document.getElementById('lblTo').innerHTML = '<strong>' + translations[lang].to + '</strong>';
+        document.getElementById('btnSubmit').value = translations[lang].button;
+
+        try {
+            const currencyTranslator = new Intl.DisplayNames([lang], {type: 'currency'});
+            document.querySelectorAll('select:not(#langSelector) option').forEach(option => {
+                try {
+                    const code = option.value;
+                    const longName = currencyTranslator.of(code);
+                    if (longName && longName !== code) {
+                        option.textContent = code + ' - ' + longName;
+                    }
+                } catch(e) {}
+            });
+        } catch(e) {}
+    }
+
+    const userLang = navigator.language || navigator.userLanguage;
+    const selector = document.getElementById('langSelector');
+    if (userLang.startsWith('es')) selector.value = 'es';
+    else if (userLang.startsWith('en')) selector.value = 'en';
+    else selector.value = 'ca';
+
+    document.getElementById('langSelector').addEventListener('change', updateLanguage);
+    window.addEventListener('load', updateLanguage);
+</script>
+</body>
+</html>
